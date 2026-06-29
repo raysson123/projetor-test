@@ -4,12 +4,12 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "node server.cjs",
+    "dev": "node backend/server.cjs",
     "build": "vite build",
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
     "preview": "vite preview",
-    "stripe-server": "node stripe-server.cjs"
+    "stripe-server": "node backend/stripe-server.cjs"
   },
   "dependencies": {
     "@emailjs/browser": "^4.4.1",
@@ -96,6 +96,7 @@
     "tailwindcss": "^3.4.11",
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.0.1",
-    "vite": "^5.4.1"
+    "vite": "^5.4.1",
+    "vite-plugin-svgr": "^5.2.0"
   }
 }

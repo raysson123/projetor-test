@@ -1,6 +1,7 @@
 
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+
 import { Menu, X, User, BookOpen, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
@@ -25,10 +26,23 @@ const Header = () => {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <Link to="/" className="flex items-center space-x-2">
-            <div className="flex flex-col">
-              <span className="text-xl font-bold text-gray-900">Denis Marques</span>
-              <span className="text-xs text-gray-600">Especialista em Gestão</span>
+
+          <Link to="/" className="flex items-center space-x-3 group">
+            {/* IMAGEM DA LOGO (Puxando direto da pasta public com barra correta) */}
+            <img
+              src="src/assets/logo.png"
+              alt="Logo Denis Marques"
+              className="h-14 w-auto transition-transform duration-200 group-hover:scale-102"
+            />
+
+            {/* TEXTOS ALINHADOS NA LATERAL (Um em cima do outro) */}
+            <div className="flex flex-col leading-tight">
+              <span className="font-bold text-lg text-gray-900 tracking-tight">
+                DENIS MARQUES
+              </span>
+              <span className="text-xs font-semibold text-gray-500 uppercase tracking-widest">
+                GESTÃO DE SAÚDE
+              </span>
             </div>
           </Link>
 
@@ -40,16 +54,16 @@ const Header = () => {
             <a href="#cursos" className="text-gray-700 hover:text-blue-600 transition-colors font-medium">
               Cursos
             </a>
-            <a href="#ebooks" className="text-gray-700 hover:text-blue-600 transition-colors font-medium">
+            {/*<a href="#ebooks" className="text-gray-700 hover:text-blue-600 transition-colors font-medium">
               eBooks
-            </a>
+            </a>*/}
             <a href="#sobre" className="text-gray-700 hover:text-blue-600 transition-colors font-medium">
               Sobre
             </a>
             <a href="#contato" className="text-gray-700 hover:text-blue-600 transition-colors font-medium">
               Contato
             </a>
-            
+
             {user ? (
               <div className="flex items-center space-x-4">
                 <Link to={getDashboardPath()}>
@@ -58,8 +72,8 @@ const Header = () => {
                     {getDashboardLabel()}
                   </Button>
                 </Link>
-                <Button 
-                  variant="ghost" 
+                <Button
+                  variant="ghost"
                   size="sm"
                   onClick={signOut}
                   className="text-gray-600 hover:text-red-600"
@@ -96,16 +110,16 @@ const Header = () => {
               <a href="#cursos" className="text-gray-700 hover:text-blue-600 transition-colors font-medium">
                 Cursos
               </a>
-              <a href="#ebooks" className="text-gray-700 hover:text-blue-600 transition-colors font-medium">
+             {/*<a href="#ebooks" className="text-gray-700 hover:text-blue-600 transition-colors font-medium">
                 eBooks
-              </a>
+              </a>*/}
               <a href="#sobre" className="text-gray-700 hover:text-blue-600 transition-colors font-medium">
                 Sobre
               </a>
               <a href="#contato" className="text-gray-700 hover:text-blue-600 transition-colors font-medium">
                 Contato
               </a>
-              
+
               {user ? (
                 <div className="flex flex-col space-y-2">
                   <Link to={getDashboardPath()}>
@@ -114,8 +128,8 @@ const Header = () => {
                       {getDashboardLabel()}
                     </Button>
                   </Link>
-                  <Button 
-                    variant="ghost" 
+                  <Button
+                    variant="ghost"
                     size="sm"
                     onClick={signOut}
                     className="text-gray-600 hover:text-red-600 w-fit"
