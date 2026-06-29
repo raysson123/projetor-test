@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste Upload eBook Images</title>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        .container { max-width: 600px; margin: 0 auto; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input[type="file"] { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; }
+        button { background: #3b82f6; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #2563eb; }
+        .result { margin-top: 20px; padding: 15px; border-radius: 4px; }
+        .success { background: #d1fae5; color: #065f46; border: 1px solid #10b981; }
+        .error { background: #fee2e2; color: #991b1b; border: 1px solid #ef4444; }
+        .preview { margin-top: 10px; }
+        .preview img { max-width: 200px; max-height: 200px; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Teste Upload eBook Images</h1>
+        <p>Este teste verifica se o bucket "ebook-images" está funcionando corretamente.</p>
+        
+        <div class="form-group">
+            <label for="imageFile">Selecione uma imagem:</label>
+            <input type="file" id="imageFile" accept="image/*">
+            <div class="preview" id="preview"></div>
+        </div>
+        
+        <button onclick="testUpload()">Testar Upload</button>
+        
+        <div id="result"></div>
+    </div>
+
+    <script>
+        // Configuração do Supabase
+        const SUPABASE_URL = "https://gabyteyblfmddvamhcow.supabase.co";
+        const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdhYnl0ZXlibGZtZGR2YW1oY293Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE3MzAzOTcsImV4cCI6MjA2NzMwNjM5N30.l6aoUXwGK4DC4HBcrmCgDtYdB67q2ztEwTcF0WwT3vc";
+        
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        // Preview da imagem
+        document.getElementById('imageFile').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('preview').innerHTML = `<img src="${e.target.result}" alt="Preview">`;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        async function testUpload() {
+            const fileInput = document.getElementById('imageFile');
+            const resultDiv = document.getElementById('result');
+            
+            if (!fileInput.files[0]) {
+                resultDiv.innerHTML = '<div class="error">Por favor, selecione uma imagem primeiro.</div>';
+                return;
+            }
+
+            const file = fileInput.files[0];
+            resultDiv.innerHTML = '<div class="result">Fazendo upload...</div>';
+
+            try {
+                // 1. Verificar se o bucket existe
+                console.log('Verificando bucket...');
+                const { data: buckets, error: bucketsError } = await supabase.storage.listBuckets();
+                
+                if (bucketsError) {
+                    throw new Error(`Erro ao listar buckets: ${bucketsError.message}`);
+                }
+
+                const ebookImagesBucket = buckets.find(b => b.name === 'ebook-images');
+                if (!ebookImagesBucket) {
+                    throw new Error('Bucket "ebook-images" não encontrado!');
+                }
+
+                console.log('Bucket encontrado:', ebookImagesBucket);
+
+                // 2. Fazer upload
+                console.log('Fazendo upload...');
+                const fileExt = file.name.split('.').pop();
+                const fileName = `test-${Date.now()}.${fileExt}`;
+                const filePath = `ebook-images/${fileName}`;
+
+                const { error: uploadError } = await supabase.storage
+                    .from('ebook-images')
+                    .upload(filePath, file);
+
+                if (uploadError) {
+                    throw new Error(`Erro no upload: ${uploadError.message}`);
+                }
+
+                // 3. Obter URL pública
+                console.log('Obtendo URL pública...');
+                const { data: { publicUrl } } = supabase.storage
+                    .from('ebook-images')
+                    .getPublicUrl(filePath);
+
+                // 4. Testar acesso à URL
+                console.log('Testando acesso à URL...');
+                const response = await fetch(publicUrl);
+                if (!response.ok) {
+                    throw new Error('URL pública não está acessível');
+                }
+
+                resultDiv.innerHTML = `
+                    <div class="success">
+                        <h3>✅ Upload realizado com sucesso!</h3>
+                        <p><strong>Arquivo:</strong> ${file.name}</p>
+                        <p><strong>Tamanho:</strong> ${(file.size / 1024).toFixed(2)} KB</p>
+                        <p><strong>URL:</strong> <a href="${publicUrl}" target="_blank">${publicUrl}</a></p>
+                        <div class="preview">
+                            <img src="${publicUrl}" alt="Uploaded image">
+                        </div>
+                    </div>
+                `;
+
+                console.log('Teste concluído com sucesso!');
+                console.log('URL:', publicUrl);
+
+            } catch (error) {
+                console.error('Erro no teste:', error);
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        <h3>❌ Erro no teste</h3>
+                        <p><strong>Erro:</strong> ${error.message}</p>
+                        <p>Verifique o console para mais detalhes.</p>
+                    </div>
+                `;
+            }
+        }
+    </script>
+</body>
+</html> 
